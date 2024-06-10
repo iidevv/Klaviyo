@@ -1,0 +1,39 @@
+<script src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{this.getPublicKey()}}"></script>
+
+{% if this.getLogin() and not this.isUserIdentified() %}
+	<script>
+        document.addEventListener("DOMContentLoaded", async () => {
+             async function klaviyoLoadCheck() {
+                let isLoaded = false;
+                let attempts = 0;
+                const maxAttempts = 5;
+
+                const checkInterval = setInterval(() => {
+                attempts++;
+
+                if (typeof klaviyo === "object" && klaviyo !== null) {
+                    isLoaded = true;
+                    clearInterval(checkInterval);
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                }
+                }, 1000);
+
+                while (attempts <= maxAttempts && !isLoaded) {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+                return isLoaded;
+            }
+
+            const klaviyoLoaded = await klaviyoLoadCheck();
+            if (klaviyoLoaded) {
+                klaviyo.push(["identify", {
+                    email: "{{this.getLogin()}}" 
+                }]);
+                {{this.setUserIdentity()}}
+            }
+        });
+	</script>
+{% endif %}

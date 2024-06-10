@@ -1,0 +1,22 @@
+XLite\Model\Config:
+  - name: stripe_sep_1
+    category: Iidev\Klaviyo
+    type: separator
+    orderby: 1000
+    translations:
+      - code: en
+        option_name: "Account settings"
+  - name: public_key
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1100
+    translations:
+      - code: en
+        option_name: "Public key"
+  - name: secret_key
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1200
+    translations:
+      - code: en
+        option_name: "Secret key"
