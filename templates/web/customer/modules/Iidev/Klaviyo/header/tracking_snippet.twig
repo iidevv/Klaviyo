@@ -1,3 +1,5 @@
+<script src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{this.getPublicKey()}}"></script>
+
 {% if this.getLogin() and not this.isUserIdentified() %}
 <script>
     document.addEventListener("DOMContentLoaded", async () => {

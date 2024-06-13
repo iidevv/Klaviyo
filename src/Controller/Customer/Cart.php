@@ -12,37 +12,54 @@ class Cart extends \XLite\Controller\Customer\Cart
 {
     protected function getAddedToCartEventData($item)
     {
-        $cartItems = $this->getCart()->getItems();
-        $eventData = [];
+        $product = $item->getProduct();
 
+        $result = [
+            "\$value" => $item->getPrice() * $item->getAmount(),
+            "AddedItemProductName" => $item->getName(),
+            "AddedItemProductID" => $item->getSku(),
+            "AddedItemSKU" => $item->getSku(),
+            "AddedItemCategories" => $this->getProductCategories($product),
+            "AddedItemImageURL" => $item->getImageURL(),
+            "AddedItemURL" => $item->getURL(),
+            "AddedItemPrice" => (int) $item->getPrice(),
+            "AddedItemQuantity" => $item->getAmount(),
+            "CheckoutURL" => $this->getShopURL('?target=checkout'),
+        ];
+
+        $cartItems = $this->getCart()->getItems();
+
+        $items = [];
+        
         foreach ($cartItems as $cartItem) {
             $product = $cartItem->getProduct();
-            $eventData[] = [
-                "ProductName" => $product->getName(),
-                "ProductID" => $product->getSku(),
-                "SKU" => $product->getSku(),
-                "Categories" => $this->getProductCategories($product),
-                "ImageURL" => $product->getImageURL(),
-                "URL" => $product->getURL(),
-                "Brand" => $product->getBrand(),
-                "Price" => $product->getDisplayPrice(),
-                "CompareAtPrice" => $product->getNetPrice()
-                // 'product_id' => $product->getProductId(),
-                // 'product_name' => $product->getName(),
-                // 'quantity' => $cartItem->getAmount(),
-                // 'price' => $cartItem->getTotal(),
-                // 'categories' => $this->getProductCategories($product),
-                // 'image_url' => $product->getImage() ? $product->getImage()->getFrontURL() : '',
-                // 'product_url' => \XLite\Core\Converter::buildFullURL(
-                //     'product',
-                //     '',
-                //     ['product_id' => $product->getProductId()],
-                //     \XLite::getInstance()->getShopURL()
-                // ),
+            $items[] = [
+                "ProductID" => $cartItem->getSku(),
+                "SKU" => $cartItem->getSku(),
+                "ProductName" => $cartItem->getName(),
+                "Quantity" => $cartItem->getAmount(),
+                "ItemPrice" => (int) $product->getPrice(),
+                "RowTotal" => $cartItem->getPrice() * $cartItem->getAmount(),
+                "ProductURL" => $cartItem->getURL(),
+                "ImageURL" => $cartItem->getImageURL(),
+                "ProductCategories" => $this->getProductCategories($product),
             ];
+
+            if ($product->getNetMarketPrice()) {
+                $items[count($items) - 1]["CompareAtPrice"] = $product->getNetMarketPrice();
+            }
         }
 
-        return $eventData;
+        $result["ItemNames"] = array_map(
+            function ($item) {
+                return $item['ProductName'];
+            },
+            $items
+        );
+
+        $result['Items'] = $items;
+
+        return $result;
     }
 
     protected function getProductCategories($product)
