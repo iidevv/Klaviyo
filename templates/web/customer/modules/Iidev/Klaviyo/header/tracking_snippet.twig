@@ -2,38 +2,29 @@
 
 {% if this.getLogin() and not this.isUserIdentified() %}
 <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-        async function klaviyoLoadCheck() {
-            let isLoaded = false;
-            let attempts = 0;
-            const maxAttempts = 5;
+    window.klaviyoLayer = {
+        type: "identify",
+        data: "{{this.getLogin()}}"
+    };
+</script>
+{{this.setUserIdentity()}}
 
-            const checkInterval = setInterval(() => {
-            attempts++;
+{% endif %}
 
-            if (typeof klaviyo === "object" && klaviyo !== null) {
-                isLoaded = true;
-                clearInterval(checkInterval);
-            }
+{% if this.isProductPage() %}
+<script>
+    window.klaviyoLayer = {
+        type: "product",
+        data: {{this.getProductPageData()|json_encode()|raw}}
+    };
+</script>
+{% endif %}
 
-            if (attempts >= maxAttempts) {
-                clearInterval(checkInterval);
-            }
-            }, 1000);
-
-            while (attempts <= maxAttempts && !isLoaded) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
-            return isLoaded;
-        }
-
-        const klaviyoLoaded = await klaviyoLoadCheck();
-        if (klaviyoLoaded) {
-            klaviyo.push(["identify", {
-                email: "{{this.getLogin()}}" 
-            }]);
-            {{this.setUserIdentity()}}
-        }
-    });
+{% if this.isCheckoutPage() %}
+<script>
+    window.klaviyoLayer = {
+        type: "checkout",
+        data: {{this.getCheckoutPageData()|json_encode()|raw}}
+    };
 </script>
 {% endif %}

@@ -7,6 +7,7 @@ use XLite\Core\Config;
 use XCart\Extender\Mapping\ListChild;
 use \XLite\Core\Session;
 use \XLite\Core\Auth;
+use Iidev\Klaviyo\Core\FrontendTracking;
 
 /**
  * @ListChild (list="head", zone="customer")
@@ -48,6 +49,36 @@ class TrackingSnippet extends AView
         return Session::getInstance()->identity;
     }
 
+    public function isCheckoutPage()
+    {
+        if ($this->getTarget() == 'checkout' && $this->getCart() && $this->getCart()->getItems()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isProductPage()
+    {
+        if ($this->getTarget() == 'product' && $this->getProduct()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function getProductPageData()
+    {
+        $tracking = new FrontendTracking();
+        return $tracking->doViewProduct($this->getProduct());
+    }
+
+    protected function getCheckoutPageData()
+    {
+        $tracking = new FrontendTracking();
+        return $tracking->doStartCheckout();
+    }
+
     /**
      * @return array
      */
@@ -60,7 +91,7 @@ class TrackingSnippet extends AView
 
             switch (true) {
                 case get_class($controller) === 'XLite\Controller\Customer\Product':
-                    
+
                     $product = $controller->getProduct();
 
                     if ($product) {
@@ -82,7 +113,7 @@ class TrackingSnippet extends AView
                                 "Price" => $product->getNetPrice(),
                             ]
                         ];
-                        if($product->getMarketPrice()) {
+                        if ($product->getMarketPrice()) {
                             $result['item']['CompareAtPrice'] = $product->getMarketPrice();
                         }
                     }
