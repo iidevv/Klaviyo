@@ -19,32 +19,124 @@ class API
      */
     public function getKlaviyoUrl()
     {
-        return "https://a.klaviyo.com/api/";
+        return "https://a.klaviyo.com/api";
     }
 
     protected function getPrivateKey()
     {
-        return Config::getInstance()->Iidev->Klaviyo->private_key;
+        return Config::getInstance()->Iidev->Klaviyo->secret_key;
     }
 
-    public function events($body)
+    protected function getInitialList()
     {
+        return Config::getInstance()->Iidev->Klaviyo->initial_list;
+    }
 
-        $result = $this->doRequest('POST', 'events', json_encode($body));
+    protected function isSuccessfulCode($code)
+    {
+        return in_array((int) $code, [200, 201, 202, 204], true);
+    }
 
-        return (int) $result->code === 200;
+    public function event($attributes)
+    {
+        $data = [
+            "data" => [
+                "type" => "event",
+                "attributes" => $attributes
+            ]
+        ];
+
+        $result = $this->doRequest('POST', 'events', $data);
+
+        return $this->isSuccessfulCode($result->code);
+    }
+
+    public function createAndSubscribeProfile($login, $source)
+    {
+        $result = $this->createProfile($login, ["\$source" => $source]);
+        if ($result) {
+            return $this->subscribeProfile($login, $source);
+        } else {
+            $this->getLogger('Klaviyo')->error("Profile not created");
+            return 0;
+        }
+    }
+
+    public function createProfile($login, $properties = [])
+    {
+        $data = [
+            "data" => [
+                "type" => "profile",
+                "attributes" => [
+                    "email" => $login,
+                    "properties" => $properties
+                ]
+            ]
+        ];
+
+        $result = $this->doRequest('POST', 'profiles', $data);
+
+        return $this->isSuccessfulCode($result->code);
+    }
+
+    public function subscribeProfile($login, $source)
+    {
+        if (!$this->getInitialList()) {
+            $this->getLogger('Klaviyo')->error("Initial list not specified");
+            return 0;
+        }
+
+        $data = [
+            "data" => [
+                "type" => "profile-subscription-bulk-create-job",
+                "attributes" => [
+                    "custom_source" => $source,
+                    "profiles" => [
+                        "data" => [
+                            [
+                                "type" => "profile",
+                                "attributes" => [
+                                    "email" => $login,
+                                    "subscriptions" => [
+                                        "email" => [
+                                            "marketing" => [
+                                                "consent" => "SUBSCRIBED"
+                                            ]
+                                        ],
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                "relationships" => [
+                    "list" => [
+                        "data" => [
+                            "type" => "list",
+                            "id" => $this->getInitialList()
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $result = $this->doRequest('POST', 'profile-subscription-bulk-create-jobs', $data);
+
+        return $this->isSuccessfulCode($result->code);
     }
 
     /**
      * @param string $method
      * @param string $path
-     * @param string $data
+     * @param array $data
      *
      * @return \PEAR2\HTTP\Request\Response
      * @throws \Exception
      */
-    protected function doRequest($method, $path, $data = '', $headers = [])
+    protected function doRequest($method, $path, $data = [], $headers = [])
     {
+        $data = json_encode($data);
+
         $this->getLogger('Klaviyo')->debug(__FUNCTION__ . 'Request. Initial data', [
             $method,
             $path,
@@ -57,7 +149,9 @@ class API
 
         $request->verb = $method;
 
-        $request->setHeader('Authorization', sprintf('Klaviyo-API-Key %s', $this->getPrivateKey()));
+        $key = $this->getPrivateKey();
+
+        $request->setHeader('Authorization', sprintf('Klaviyo-API-Key %s', $key));
         $request->setHeader('Revision', '2023-10-15');
         $request->setHeader('Accept', 'application/json');
         $request->setHeader('Content-Type', 'application/json');
@@ -87,8 +181,13 @@ class API
             $request->getErrorMessage(),
         ]);
 
-        if (!$response || !in_array((int) $response->code, [200, 201, 202, 204], true)) {
-            throw new Exception($request->getErrorMessage(), $response->code);
+        if (!$response || !$this->isSuccessfulCode($response->code)) {
+            $this->getLogger('Klaviyo')->error(__FUNCTION__ . 'Response error', [
+                $response->body,
+                $response->code
+            ]);
+
+            throw new Exception($response->body, $response->code);
         }
 
         return $response;

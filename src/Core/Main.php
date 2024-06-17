@@ -9,7 +9,7 @@ class Main extends \XLite\Base\Singleton
 {
     use InjectLoggerTrait;
     protected static $instance;
-    
+
     public static function getInstance()
     {
         if (null === static::$instance) {
@@ -22,7 +22,7 @@ class Main extends \XLite\Base\Singleton
     {
         $product = $item->getProduct();
 
-        $result = [
+        $data = [
             "\$value" => $item->getPrice() * $item->getAmount(),
             "AddedItemProductName" => $item->getName(),
             "AddedItemProductID" => $item->getSku(),
@@ -37,37 +37,10 @@ class Main extends \XLite\Base\Singleton
 
         $cartItems = \XLite::getController()->getCart()->getItems();
 
-        $items = [];
+        $data['Items'] = $this->getItems($cartItems);
+        $data["ItemNames"] = $this->getItemNames($cartItems);
 
-        foreach ($cartItems as $cartItem) {
-            $product = $cartItem->getProduct();
-            $items[] = [
-                "ProductID" => $cartItem->getSku(),
-                "SKU" => $cartItem->getSku(),
-                "ProductName" => $cartItem->getName(),
-                "Quantity" => $cartItem->getAmount(),
-                "ItemPrice" => (int) $product->getPrice(),
-                "RowTotal" => $cartItem->getPrice() * $cartItem->getAmount(),
-                "ProductURL" => $cartItem->getURL(),
-                "ImageURL" => $cartItem->getImageURL(),
-                "ProductCategories" => $this->getProductCategories($product),
-            ];
-
-            if ($product->getNetMarketPrice()) {
-                $items[count($items) - 1]["CompareAtPrice"] = $product->getNetMarketPrice();
-            }
-        }
-
-        $result["ItemNames"] = array_map(
-            function ($item) {
-                return $item['ProductName'];
-            },
-            $items
-        );
-
-        $result['Items'] = $items;
-
-        return $result;
+        return $data;
     }
 
     public function getStartCheckoutData()
@@ -78,44 +51,14 @@ class Main extends \XLite\Base\Singleton
         $data = [
             "\$event_id" => $this->getUniqueNumber() . "_" . time(),
             "\$value" => $cart->getTotal(),
-            "CheckoutURL" => \XLite::getController()->getShopURL('?target=checkout'),
-            "Categories" => ["Fiction", "Children", "Classics"]
+            "CheckoutURL" => \XLite::getController()->getShopURL('?target=checkout')
         ];
 
         $cartItems = $cart->getItems();
 
-        foreach ($cartItems as $cartItem) {
-            $product = $cartItem->getProduct();
-            $data['Items'][] = [
-                "ProductID" => $cartItem->getSku(),
-                "SKU" => $cartItem->getSku(),
-                "ProductName" => $cartItem->getName(),
-                "Quantity" => $cartItem->getAmount(),
-                "ItemPrice" => (int) $product->getPrice(),
-                "RowTotal" => $cartItem->getPrice() * $cartItem->getAmount(),
-                "ProductURL" => $cartItem->getURL(),
-                "ImageURL" => $cartItem->getImageURL(),
-                "ProductCategories" => $this->getProductCategories($product),
-            ];
-
-            if ($product->getNetMarketPrice()) {
-                $data['Items'][count($data['Items']) - 1]["CompareAtPrice"] = $product->getNetMarketPrice();
-            }
-        }
-
-        $data["ItemNames"] = array_map(
-            function ($item) {
-                return $item['ProductName'];
-            },
-            $data['Items']
-        );
-
-        $data["Categories"] = array_map(
-            function ($item) {
-                return $item['ProductCategories'][0];
-            },
-            $data['Items']
-        );
+        $data['Items'] = $this->getItems($cartItems);
+        $data["ItemNames"] = $this->getItemNames($cartItems);
+        $data["Categories"] = $this->getItemCategories($cartItems);
 
         return $data;
     }
@@ -172,6 +115,85 @@ class Main extends \XLite\Base\Singleton
             $categories[] = $category->getName();
         }
         return $categories;
+    }
+
+    public function getItemNames($items)
+    {
+        $items = $items->toArray();
+
+        return array_map(
+            function ($item) {
+                return $item->getName();
+            },
+            $items
+        );
+    }
+
+    public function getItemCategories($items)
+    {
+        $items = $items->toArray();
+
+        return array_map(
+            function ($item) {
+                $product = $item->getProduct();
+                if (!$product->getCategories()[0])
+                    return 'Products';
+
+                return $product->getCategories()[0]->getName();
+            },
+            $items
+        );
+    }
+
+    public function getItemBrands($items)
+    {
+        $items = $items->toArray();
+
+        return array_map(
+            function ($item) {
+                $product = $item->getProduct();
+
+                return $product->getBrandName();
+            },
+            $items
+        );
+    }
+
+
+    public function getItems($cartItems)
+    {
+        $items = [];
+
+        foreach ($cartItems as $cartItem) {
+            $product = $cartItem->getProduct();
+            $items[] = [
+                "ProductID" => $cartItem->getSku(),
+                "SKU" => $cartItem->getSku(),
+                "ProductName" => $cartItem->getName(),
+                "Quantity" => $cartItem->getAmount(),
+                "ItemPrice" => (int) $product->getPrice(),
+                "RowTotal" => $cartItem->getPrice() * $cartItem->getAmount(),
+                "ProductURL" => $cartItem->getURL(),
+                "ImageURL" => $cartItem->getImageURL(),
+                "ProductCategories" => $this->getProductCategories($product),
+            ];
+
+            if ($product->getNetMarketPrice()) {
+                $items[count($items) - 1]["CompareAtPrice"] = $product->getNetMarketPrice();
+            }
+        }
+        return $items;
+    }
+
+    public function getOrderDate($timestamp)
+    {
+        date_default_timezone_set('UTC');
+
+        $date = date('Y-m-d\TH:i:s\Z', $timestamp);
+
+        date_default_timezone_set(\XLite\Core\Converter::getTimeZone()->getName());
+
+        return $date;
     }
 
     public static function getUniqueNumber()
