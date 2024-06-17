@@ -20,3 +20,10 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: "Secret key"
+  - name: initial_list
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1300
+    translations:
+      - code: en
+        option_name: "Initial list"
