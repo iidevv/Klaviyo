@@ -51,11 +51,11 @@ class API
         return $this->isSuccessfulCode($result->code);
     }
 
-    public function createAndSubscribeProfile($login, $source)
+    public function createAndSubscribeProfile($login, $properties)
     {
-        $result = $this->createProfile($login, ["\$source" => $source]);
+        $result = $this->createProfile($login, $properties);
         if ($result) {
-            return $this->subscribeProfile($login, $source);
+            return $this->subscribeProfile($login, $properties['$source']);
         } else {
             $this->getLogger('Klaviyo')->warning("createAndSubscribeProfile. Profile not created: ".$login);
             return 0;

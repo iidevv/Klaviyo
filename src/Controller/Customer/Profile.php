@@ -17,10 +17,12 @@ class Profile extends \XLite\Controller\Customer\Profile
         $result = parent::doActionRegister();
 
         if ($result && $this->getModelForm()) {
-            $profile = $this->getModelForm()->getModelObject();
-
             $api = new API();
-            $result = $api->createAndSubscribeProfile($profile->getLogin(), 'signup');
+
+            $profile = $this->getModelForm()->getModelObject();
+            $businessCatetory = \XLite\Core\Request::getInstance()->business_category;
+
+            $api->createAndSubscribeProfile($profile->getLogin(), ["\$source" => 'signup', "Category" => $businessCatetory]);
         }
 
         return $result;

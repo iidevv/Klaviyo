@@ -18,6 +18,6 @@ class Checkout extends \XLite\Controller\Customer\Checkout
         $profile = $this->getCart()->getOrigProfile();
 
         $api = new API();
-        $api->createAndSubscribeProfile($profile->getLogin(), 'buyer');
+        $api->createAndSubscribeProfile($profile->getLogin(), ["\$source" => 'buyer']);
     }
 }

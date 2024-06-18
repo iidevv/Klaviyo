@@ -20,10 +20,31 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: "Secret key"
-  - name: initial_list
+  - name: stripe_sep_2
     category: Iidev\Klaviyo
-    type: text
+    type: separator
     orderby: 1300
     translations:
       - code: en
-        option_name: "Initial list"
+        option_name: "Content settings"
+  - name: initial_list
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1400
+    translations:
+      - code: en
+        option_name: "Initial audience list"
+  - name: footer_form_id
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1500
+    translations:
+      - code: en
+        option_name: "Footer from"
+  - name: business_categories
+    category: Iidev\Klaviyo
+    type: text
+    orderby: 1600
+    translations:
+      - code: en
+        option_name: "Business categories"

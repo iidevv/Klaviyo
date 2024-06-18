@@ -22,7 +22,7 @@ class ContactUs extends \CDev\ContactUs\Controller\Customer\ContactUs
         $email = \XLite\Core\Request::getInstance()->email;
         
         $api = new API();
-        $api->createAndSubscribeProfile($email, 'catalog_request');
+        $api->createAndSubscribeProfile($email, ["\$source" => 'catalog_request']);
 
         parent::doActionSend();
     }
