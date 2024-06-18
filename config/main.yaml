@@ -4,7 +4,8 @@ authorName: "Ilya I"
 moduleName: "Klaviyo"
 description: "Syncs store data, sends events, enhances email marketing."
 minorRequiredCoreVersion: 0
-dependsOn: {}
+dependsOn:
+  - CDev-ContactUs
 incompatibleWith: {}
 showSettingsForm: true
 canDisable: true

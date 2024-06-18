@@ -57,7 +57,7 @@ class API
         if ($result) {
             return $this->subscribeProfile($login, $source);
         } else {
-            $this->getLogger('Klaviyo')->error("Profile not created");
+            $this->getLogger('Klaviyo')->warning("createAndSubscribeProfile. Profile not created: ".$login);
             return 0;
         }
     }
@@ -180,6 +180,10 @@ class API
             $response ? $response->body : 'empty',
             $request->getErrorMessage(),
         ]);
+
+        if ($response->code === 409) {
+            return $response;
+        }
 
         if (!$response || !$this->isSuccessfulCode($response->code)) {
             $this->getLogger('Klaviyo')->error(__FUNCTION__ . 'Response error', [
