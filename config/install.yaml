@@ -34,13 +34,13 @@ XLite\Model\Config:
     translations:
       - code: en
         option_name: "Initial audience list"
-  - name: footer_form_id
+  - name: footer_form
     category: Iidev\Klaviyo
     type: text
     orderby: 1500
     translations:
       - code: en
-        option_name: "Footer from"
+        option_name: "Footer form"
   - name: business_categories
     category: Iidev\Klaviyo
     type: text

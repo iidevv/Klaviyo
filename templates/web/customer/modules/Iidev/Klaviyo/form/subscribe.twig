@@ -1,0 +1,22 @@
+{##
+ # Subscribe block
+ #}
+{% if this.getForm() %}
+	<div class="subscription-block">
+		<div class="subscription-form-block">
+			<div class="subscription-box">
+				<div class="subscription-box__text">
+					<div class="subscription-box__label subscription-form-label">
+						{{ this.getFormLabel() }}
+					</div>
+					<div class="subscription-box__description subscription-form-description">
+						{{ this.getFormDescription() }}
+					</div>
+				</div>
+				<div class="subscription-box__form subscription-form-fields">
+					{{ this.getForm()|raw }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endif %}
