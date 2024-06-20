@@ -57,7 +57,7 @@ class BackendTracking
                         ]
                     ]
                 ],
-                "unique_id" => $orderId,
+                "unique_id" => $item->getSku()
             ];
 
             $api->event($attributes);
@@ -90,7 +90,7 @@ class BackendTracking
 
         $api->event($attributes);
     }
-     
+
     public function doProcessedOrder(\XLite\Model\Order $order)
     {
         $api = new API();
@@ -98,6 +98,13 @@ class BackendTracking
         $attributes = $this->getOrderEventData($order, "Processed Order");
 
         $api->event($attributes);
+    }
+
+    public function doCreateOrUpdateProfile($attributes)
+    {
+        $api = new API();
+
+        $api->createOrUpdateProfile($attributes);
     }
     private function getOrderEventData(\XLite\Model\Order $order, $eventName = '')
     {
@@ -107,7 +114,7 @@ class BackendTracking
 
         $attributes = [
             "properties" => [
-                "OrderId" => $order->getOrderNumber(),
+                "OrderId" => $order->getOrderId(),
                 "Categories" => $main->getItemCategories($items),
                 "ItemNames" => $main->getItemNames($items),
                 "Brands" => $main->getItemBrands($items),
@@ -126,10 +133,10 @@ class BackendTracking
                     "Address1" => $profile->getShippingAddress()->getStreet()
                 ]
             ],
-            "time" => $main->getOrderDate($order->getDate()),
+            "time" => $main->getOrderDate(),
             "value" => $order->getTotal(),
             "value_currency" => $order->getCurrency()->getCode(),
-            "unique_id" => $order->getOrderNumber(),
+            "unique_id" => $order->getOrderId(),
             "metric" => [
                 "data" => [
                     "type" => "metric",

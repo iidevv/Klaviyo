@@ -6,6 +6,8 @@ description: "Syncs store data, sends events, enhances email marketing."
 minorRequiredCoreVersion: 0
 dependsOn:
   - CDev-ContactUs
+  - CDev-ShopByBrand
+  - Iidev-StripeSubscriptions
 incompatibleWith: {}
 showSettingsForm: true
 canDisable: true

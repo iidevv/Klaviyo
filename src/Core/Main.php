@@ -185,11 +185,11 @@ class Main extends \XLite\Base\Singleton
         return $items;
     }
 
-    public function getOrderDate($timestamp)
+    public function getOrderDate()
     {
         date_default_timezone_set('UTC');
 
-        $date = date('Y-m-d\TH:i:s\Z', $timestamp);
+        $date = date('Y-m-d\TH:i:s\Z');
 
         date_default_timezone_set(\XLite\Core\Converter::getTimeZone()->getName());
 

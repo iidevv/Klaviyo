@@ -57,7 +57,7 @@ class API
         if ($result) {
             return $this->subscribeProfile($login, $properties['$source']);
         } else {
-            $this->getLogger('Klaviyo')->warning("createAndSubscribeProfile. Profile not created: ".$login);
+            $this->getLogger('Klaviyo')->warning("createAndSubscribeProfile. Profile not created: " . $login);
             return 0;
         }
     }
@@ -75,6 +75,20 @@ class API
         ];
 
         $result = $this->doRequest('POST', 'profiles', $data);
+
+        return $this->isSuccessfulCode($result->code);
+    }
+
+    public function createOrUpdateProfile($attributes)
+    {
+        $data = [
+            "data" => [
+                "type" => "profile",
+                "attributes" => $attributes
+            ]
+        ];
+
+        $result = $this->doRequest('POST', 'profile-import', $data);
 
         return $this->isSuccessfulCode($result->code);
     }
