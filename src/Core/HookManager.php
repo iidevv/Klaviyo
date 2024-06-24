@@ -12,10 +12,9 @@ use XCart\Extender\Mapping\Extender;
 class HookManager extends \Iidev\StripeSubscriptions\Core\HookManager
 {
 
-    private function setProMembership(Profile $profile, string $status): void
-    {
-        parent::setProMembership($profile, $status);
 
+    public function setProMembership(Profile $profile, string $status): void
+    {
         $tracking = new BackendTracking;
 
         $attributes = [
@@ -23,17 +22,17 @@ class HookManager extends \Iidev\StripeSubscriptions\Core\HookManager
         ];
 
         if ($status === 'Active') {
-            $attributes['membership'] = 'pro member';
+            $attributes['properties']['membership'] = 'pro member';
 
             $tracking->doCreateOrUpdateProfile($attributes);
-            return;
         }
 
         if ($status === 'Inactive') {
-            $attributes['membership'] = 'non-member';
+            $attributes['properties']['membership'] = 'non-member';
 
             $tracking->doCreateOrUpdateProfile($attributes);
-            return;
         }
+        
+        parent::setProMembership($profile, $status);
     }
 }

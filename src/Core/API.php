@@ -166,7 +166,7 @@ class API
         $key = $this->getPrivateKey();
 
         $request->setHeader('Authorization', sprintf('Klaviyo-API-Key %s', $key));
-        $request->setHeader('Revision', '2023-10-15');
+        $request->setHeader('Revision', '2024-06-15');
         $request->setHeader('Accept', 'application/json');
         $request->setHeader('Content-Type', 'application/json');
 
