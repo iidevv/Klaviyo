@@ -50,7 +50,7 @@ abstract class Order extends \XLite\Model\Order
     {
         parent::setShippingStatus($shippingStatus);
 
-        if (!$this->getShippingStatus())
+        if (!$this->getShippingStatus() || !$this->getPaymentStatus())
             return;
 
         $shippingStatus = $this->getShippingStatus()->getCode();
