@@ -159,7 +159,6 @@ class Main extends \XLite\Base\Singleton
         );
     }
 
-
     public function getItems($cartItems)
     {
         $items = [];
@@ -206,6 +205,7 @@ class Main extends \XLite\Base\Singleton
 
         return $uniqueNumber;
     }
+    
     private static function generateUniqueNumber()
     {
         $timestamp = time();
