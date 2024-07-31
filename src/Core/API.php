@@ -64,6 +64,11 @@ class API
 
     public function createProfile($login, $properties = [])
     {
+        $isValidEmail = filter_var($login, FILTER_SANITIZE_EMAIL);
+
+        if (!$isValidEmail)
+            return;
+
         $data = [
             "data" => [
                 "type" => "profile",
