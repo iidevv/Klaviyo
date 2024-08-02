@@ -26,6 +26,11 @@ class BackendTracking
         $profile = $order->getProfile();
         $login = trim($profile->getLogin());
 
+        $isValidEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
+
+        if (!$isValidEmail)
+            return;
+
         foreach ($items as $item) {
             $product = $item->getProduct();
 
@@ -113,6 +118,11 @@ class BackendTracking
         $items = $order->getItems();
         $profile = $order->getProfile();
         $login = trim($profile->getLogin());
+
+        $isValidEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
+
+        if (!$isValidEmail)
+            return;
 
         $attributes = [
             "properties" => [
