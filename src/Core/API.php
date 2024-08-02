@@ -53,7 +53,10 @@ class API
 
     public function createAndSubscribeProfile($login, $properties)
     {
+        $login = trim($login);
+
         $result = $this->createProfile($login, $properties);
+
         if ($result) {
             return $this->subscribeProfile($login, $properties['$source']);
         } else {
@@ -64,10 +67,12 @@ class API
 
     public function createProfile($login, $properties = [])
     {
-        $isValidEmail = filter_var($login, FILTER_SANITIZE_EMAIL);
+        $isValidEmail = filter_var($login, FILTER_VALIDATE_EMAIL);
 
         if (!$isValidEmail)
             return;
+
+        $login = trim($login);
 
         $data = [
             "data" => [

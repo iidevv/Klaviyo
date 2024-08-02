@@ -24,6 +24,7 @@ class BackendTracking
         $orderId = $order->getOrderId();
         $items = $order->getItems();
         $profile = $order->getProfile();
+        $login = trim($profile->getLogin());
 
         foreach ($items as $item) {
             $product = $item->getProduct();
@@ -53,7 +54,7 @@ class BackendTracking
                     "data" => [
                         "type" => "profile",
                         "attributes" => [
-                            "email" => $profile->getLogin()
+                            "email" => $login
                         ]
                     ]
                 ],
@@ -111,6 +112,7 @@ class BackendTracking
         $main = Main::getInstance();
         $items = $order->getItems();
         $profile = $order->getProfile();
+        $login = trim($profile->getLogin());
 
         $attributes = [
             "properties" => [
@@ -149,7 +151,7 @@ class BackendTracking
                 "data" => [
                     "type" => "profile",
                     "attributes" => [
-                        "email" => $profile->getLogin(),
+                        "email" => $login,
                     ]
                 ]
             ]
