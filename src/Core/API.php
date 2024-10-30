@@ -164,7 +164,7 @@ class API
     {
         $data = json_encode($data);
 
-        $this->getLogger('Klaviyo')->error(__FUNCTION__ . 'Request. Initial data', [
+        $this->getLogger('Klaviyo')->debug(__FUNCTION__ . 'Request. Initial data', [
             $method,
             $path,
             $data
