@@ -50,14 +50,7 @@ abstract class Order extends \XLite\Model\Order
     {
         parent::setShippingStatus($shippingStatus);
 
-        if (!$this->getShippingStatus() || !$this->getPaymentStatus())
-            return;
-
-        $shippingStatus = $this->getShippingStatus()->getCode();
-
-        $paymentStatus = $this->getPaymentStatus()->getCode();
-
-        if ($paymentStatus === \XLite\Model\Order\Status\Payment::STATUS_PAID && $shippingStatus === \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED) {
+        if ($this->isCompletedOrder()) {
             $tracking = new BackendTracking;
 
             $order = \XLite\Core\Database::getRepo('XLite\Model\Order')->find($this->getOrderId());
@@ -68,6 +61,31 @@ abstract class Order extends \XLite\Model\Order
 
             $tracking->doFulfilledOrder($order);
         }
+    }
+
+    protected function isCompletedOrder(): bool
+    {
+        $paymentStatus = $this->getPaymentStatus()?->getCode();
+        $shippingStatus = $this->getShippingStatus()?->getCode();
+        $oldShippingStatus = $this->oldShippingStatus?->getCode();
+
+        if (!$oldShippingStatus || $oldShippingStatus == $shippingStatus) {
+            return false;
+        }
+
+        if (!$shippingStatus || !$paymentStatus) {
+            return false;
+        }
+
+        if($paymentStatus === \XLite\Model\Order\Status\Payment::STATUS_PAID && $shippingStatus === \XLite\Model\Order\Status\Shipping::STATUS_SHIPPED) {
+            return true;
+        }
+
+        if($paymentStatus === \XLite\Model\Order\Status\Payment::STATUS_PAID && $shippingStatus === \XLite\Model\Order\Status\Shipping::STATUS_DELIVERED) {
+            return true;
+        }
+
+        return false;
     }
 
 }
