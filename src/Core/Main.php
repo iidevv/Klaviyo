@@ -23,14 +23,14 @@ class Main extends \XLite\Base\Singleton
         $product = $item->getProduct();
 
         $data = [
-            "\$value" => $item->getPrice() * $item->getAmount(),
+            "\$value" => $item->getDisplayPrice() * $item->getAmount(),
             "AddedItemProductName" => $item->getName(),
             "AddedItemProductID" => $item->getSku(),
             "AddedItemSKU" => $item->getSku(),
             "AddedItemCategories" => $this->getProductCategories($product),
             "AddedItemImageURL" => $item->getImageURL(),
             "AddedItemURL" => $item->getURL(),
-            "AddedItemPrice" => (int) $item->getPrice(),
+            "AddedItemPrice" => (int) $item->getDisplayPrice(),
             "AddedItemQuantity" => $item->getAmount(),
             "CheckoutURL" => \XLite::getController()->getShopURL('?target=checkout'),
         ];
@@ -65,15 +65,17 @@ class Main extends \XLite\Base\Singleton
 
     public function getViewedProductData($product)
     {
+        $variant = $product->getVariantByRequest();
+        
         $productData = [
             "title" => $product->getName(),
-            "sku" => $product->getVariant() ? $product->getVariant()->getSku() : $product->getSku(),
+            "sku" => $variant ? $variant->getSku() : $product->getSku(),
             "categories" => $this->getProductCategories($product),
             "image" => $product->getImageURL(),
             "url" => $product->getURL(),
             "brand" => $product->getBrandName(),
-            "price" => $product->getPrice(),
-            "market_price" => $product->getNetMarketPrice()
+            "price" => $variant && $variant->getDisplayPrice() ? $variant->getDisplayPrice() : $product->getDisplayPrice(),
+            "market_price" => $variant && $variant->getDisplayPrice() ? $variant->getDisplayPrice() : $product->getNetMarketPrice()
         ];
 
         $data = [
