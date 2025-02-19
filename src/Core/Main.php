@@ -23,14 +23,14 @@ class Main extends \XLite\Base\Singleton
         $product = $item->getProduct();
 
         $data = [
-            "\$value" => $item->getDisplayPrice() * $item->getAmount(),
+            "\$value" => $item->getPrice() * $item->getAmount(),
             "AddedItemProductName" => $item->getName(),
             "AddedItemProductID" => $item->getSku(),
             "AddedItemSKU" => $item->getSku(),
             "AddedItemCategories" => $this->getProductCategories($product),
             "AddedItemImageURL" => $item->getImageURL(),
             "AddedItemURL" => $item->getURL(),
-            "AddedItemPrice" => (int) $item->getDisplayPrice(),
+            "AddedItemPrice" => (int) $item->getPrice(),
             "AddedItemQuantity" => $item->getAmount(),
             "CheckoutURL" => \XLite::getController()->getShopURL('?target=checkout'),
         ];
@@ -66,6 +66,10 @@ class Main extends \XLite\Base\Singleton
     public function getViewedProductData($product)
     {
         $variant = $product->getVariantByRequest();
+
+        if(!$variant) {
+            $variant = $product->getVariants()?->first();
+        }
         
         $productData = [
             "title" => $product->getName(),
