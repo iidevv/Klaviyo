@@ -217,8 +217,6 @@ class API
                 $response->body,
                 $response->code
             ]);
-
-            throw new Exception($response->body, $response->code);
         }
 
         return $response;
